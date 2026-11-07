@@ -69,10 +69,15 @@ jobs:
         working-directory: ${{ env.APP_DIR }}
         run: |
           set -e
+          if [ ! -f tool/android/AndroidManifest.xml ]; then
+            echo "::error::tool/android/AndroidManifest.xml 不在仓库里"
+            echo "多半是 .gitignore 里写了 'android/'（少了前导斜杠），把 tool/android/ 也忽略了："
+            git check-ignore -v tool/android/AndroidManifest.xml || true
+            echo "修复：把 .gitignore 改成 /android/，然后 git add -f tool/android/AndroidManifest.xml"
+            exit 1
+          fi
           cp tool/android/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
           grep -n 'android:label' android/app/src/main/AndroidManifest.xml
-          grep -n 'applicationName\|MainActivity' android/app/src/main/AndroidManifest.xml | head -5
-          ls -la android/app/src/main/kotlin/com/sujian/sujian/ 2>/dev/null || find android/app/src/main -name 'MainActivity*'
 
       - name: 拉依赖
         working-directory: ${{ env.APP_DIR }}

@@ -1,29 +1,31 @@
-# Flutter / Dart
+# ── Flutter / Dart ──
 .dart_tool/
 .packages
 .pub-cache/
 .pub/
-build/
 .flutter-plugins
 .flutter-plugins-dependencies
 
-# 构建时由 flutter create 生成的平台目录（不入库）
-android/
-ios/
-linux/
-macos/
-windows/
-web/
+# ── 平台目录：只忽略仓库根目录的那一份 ──
+# 注意：必须带前导 "/"，否则 "android/" 会匹配任意层级，
+#      把我们自己的 tool/android/AndroidManifest.xml 一起吞掉（这个坑踩过一次）
+/android/
+/ios/
+/linux/
+/macos/
+/windows/
+/web/
 
-# 字体源文件（只用 assets/fonts 下的子集）
-_fontsrc/
+/build/
 
-# IDE
+# ── 字体源文件（只用 assets/fonts 下的子集） ──
+/_fontsrc/
+
+# ── IDE ──
 .idea/
 .vscode/
 *.iml
-*.lock.bak
 
-# OS
+# ── OS ──
 .DS_Store
 Thumbs.db
