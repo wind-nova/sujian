@@ -161,7 +161,7 @@ class _ResultPageState extends State<ResultPage> {
               child: const SizedBox(
                 width: 48,
                 height: 48,
-                child: Center(child: HandGlyph(Glyph.back, opacity: 0.85)),
+                child: Center(child: HandGlyph(HandIcon.back, opacity: 0.85)),
               ),
             ),
             Expanded(
@@ -178,7 +178,7 @@ class _ResultPageState extends State<ResultPage> {
               child: const SizedBox(
                 width: 48,
                 height: 48,
-                child: Center(child: HandGlyph(Glyph.share, size: 20, opacity: 0.7)),
+                child: Center(child: HandGlyph(HandIcon.share, size: 20, opacity: 0.7)),
               ),
             ),
           ],
@@ -224,17 +224,17 @@ class _ResultPageState extends State<ResultPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _act(Glyph.save, '保存图片', _busy ? null : _save),
-            _act(Glyph.pdf, pages > 1 ? 'PDF · $pages 页' : '导出 PDF', _busy ? null : _exportPdf),
-            _act(Glyph.share, '分享', _share),
-            _act(Glyph.pen, '重写', () => Navigator.of(context).maybePop()),
+            _act(HandIcon.save, '保存图片', _busy ? null : _save),
+            _act(HandIcon.pdf, pages > 1 ? 'PDF · $pages 页' : '导出 PDF', _busy ? null : _exportPdf),
+            _act(HandIcon.share, '分享', _share),
+            _act(HandIcon.pen, '重写', () => Navigator.of(context).maybePop()),
           ],
         ),
       ),
     );
   }
 
-  Widget _act(Glyph glyph, String label, VoidCallback? onTap) {
+  Widget _act(HandIcon glyph, String label, VoidCallback? onTap) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,

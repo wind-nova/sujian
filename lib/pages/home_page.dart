@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _iconButton(const HandGlyph(Glyph.menu), () {}),
+            _iconButton(const HandGlyph(HandIcon.menu), () {}),
             Text(
               '· 素 笺 ·',
               style: TextStyle(
@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 fontWeight: FontWeight.w300,
               ),
             ),
-            _iconButton(const HandGlyph(Glyph.drafts), () {}),
+            _iconButton(const HandGlyph(HandIcon.drafts), () {}),
           ],
         ),
       ),

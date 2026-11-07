@@ -85,12 +85,35 @@ jobs:
 
       - name: 静态分析
         working-directory: ${{ env.APP_DIR }}
-        continue-on-error: true
-        run: flutter analyze --no-fatal-infos
+        run: |
+          set +e
+          flutter analyze --no-fatal-infos 2>&1 | tee analyze.log
+          {
+            echo "## Dart 静态分析"
+            echo '```'
+            grep -E 'error .' analyze.log | head -80
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
 
       - name: 构建 APK
         working-directory: ${{ env.APP_DIR }}
-        run: flutter build apk --release --split-per-abi
+        run: |
+          set -o pipefail
+          flutter build apk --release --split-per-abi 2>&1 | tee build.log
+
+      - name: 失败摘要
+        if: failure()
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          {
+            echo "## 失败摘要"
+            echo '```'
+            grep -hE 'error |Error:|Target kernel|Exception' build.log analyze.log 2>/dev/null | head -60 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "--- build.log 末尾 ---"
+          tail -n 60 build.log 2>/dev/null || true
 
       - name: 上传产物
         uses: actions/upload-artifact@v4

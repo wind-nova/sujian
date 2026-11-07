@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../theme.dart';
 
-/// 鎵嬬粯妞渾鎸夐挳锛堥椤点€屼功鍐欍€嶏級
+/// 手绘椭圆按钮（首页「书写」）
 class HandOvalButton extends StatefulWidget {
   final String label;
   final String? latin;
@@ -55,8 +55,8 @@ class _HandOvalButtonState extends State<HandOvalButton> {
                       color: Color(0xFF4A443B),
                     ),
                   ),
-                  if (widget.latin != null) ...[
-                    const SizedBox(width: 8),
+                  if (widget.latin != null) const SizedBox(width: 8),
+                  if (widget.latin != null)
                     Text(
                       widget.latin!,
                       style: const TextStyle(
@@ -65,7 +65,6 @@ class _HandOvalButtonState extends State<HandOvalButton> {
                         color: C.text2,
                       ),
                     ),
-                  ],
                 ],
               ),
             ),
@@ -105,10 +104,14 @@ class _OvalPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter old) => false;
 }
 
-/// 鎵嬬粯鍥炬爣锛堣彍鍗?/ 鑽夌 / 杩斿洖 / 绠ご锛?enum Glyph { menu, drafts, back, arrow, save, pdf, share, pen }
+// ─────────────────────────────────────────────────────────────
+// 手绘图标集
+// ─────────────────────────────────────────────────────────────
+
+enum HandIcon { menu, drafts, back, arrow, save, pdf, share, pen }
 
 class HandGlyph extends StatelessWidget {
-  final Glyph type;
+  final HandIcon type;
   final double size;
   final Color color;
   final double opacity;
@@ -129,15 +132,17 @@ class HandGlyph extends StatelessWidget {
 }
 
 class _GlyphPainter extends CustomPainter {
-  final Glyph type;
+  final HandIcon type;
   final Color color;
+
   _GlyphPainter(this.type, this.color);
 
   @override
   void paint(Canvas canvas, Size size) {
     final s = size.width / 24;
     canvas.scale(s);
-    final p = Paint()
+
+    final stroke = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5
       ..strokeCap = StrokeCap.round
@@ -145,64 +150,68 @@ class _GlyphPainter extends CustomPainter {
       ..color = color;
 
     switch (type) {
-      case Glyph.menu:
+      case HandIcon.menu:
         for (final y in [8.1, 12.1, 16.1]) {
-          final path = Path()
-            ..moveTo(4.7, y)
-            ..quadraticBezierTo(12, y - 0.5, y == 16.1 ? 16.4 : 19.2, y + 0.15);
-          canvas.drawPath(path, p);
+          final right = y > 16 ? 16.4 : 19.2;
+          canvas.drawPath(
+            Path()
+              ..moveTo(4.7, y)
+              ..quadraticBezierTo(12, y - 0.5, right, y + 0.15),
+            stroke,
+          );
         }
         break;
 
-      case Glyph.drafts:
+      case HandIcon.drafts:
         canvas.drawRRect(
           RRect.fromLTRBR(7.2, 5.2, 16.3, 17.4, const Radius.circular(1)),
-          p..color = color.withAlpha(90),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.5
+            ..strokeCap = StrokeCap.round
+            ..color = color.withAlpha(90),
         );
         canvas.drawRRect(
           RRect.fromLTRBR(5.1, 7.4, 14.3, 19.5, const Radius.circular(1)),
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.4
-            ..color = color,
+          stroke,
         );
         break;
 
-      case Glyph.back:
+      case HandIcon.back:
         canvas.drawPath(
           Path()
             ..moveTo(15.1, 5.9)
             ..quadraticBezierTo(10.9, 9.1, 6.9, 12.1)
             ..quadraticBezierTo(11, 15.1, 15.2, 18.2),
-          p,
+          stroke,
         );
         break;
 
-      case Glyph.arrow:
+      case HandIcon.arrow:
         canvas.drawPath(
           Path()
             ..moveTo(3, 3)
             ..quadraticBezierTo(16, 4, 19, 11)
             ..quadraticBezierTo(21.5, 16.5, 15.5, 19.5),
-          p,
+          stroke,
         );
         canvas.drawPath(
           Path()
             ..moveTo(15.2, 14.6)
             ..lineTo(15.5, 19.8)
             ..lineTo(20.4, 18.6),
-          p,
+          stroke,
         );
         break;
 
-      case Glyph.save:
-        canvas.drawLine(const Offset(12, 3.6), const Offset(12, 14.4), p);
+      case HandIcon.save:
+        canvas.drawLine(const Offset(12, 3.6), const Offset(12, 14.4), stroke);
         canvas.drawPath(
           Path()
             ..moveTo(8, 10.6)
             ..lineTo(12, 14.7)
             ..lineTo(16, 10.4),
-          p,
+          stroke,
         );
         canvas.drawPath(
           Path()
@@ -212,11 +221,11 @@ class _GlyphPainter extends CustomPainter {
             ..lineTo(17.7, 20.4)
             ..quadraticBezierTo(19.4, 20.4, 19.4, 18.8)
             ..lineTo(19.4, 17.2),
-          p,
+          stroke,
         );
         break;
 
-      case Glyph.pdf:
+      case HandIcon.pdf:
         canvas.drawPath(
           Path()
             ..moveTo(6.2, 3.6)
@@ -225,28 +234,32 @@ class _GlyphPainter extends CustomPainter {
             ..lineTo(18, 20.4)
             ..lineTo(6.2, 20.4)
             ..close(),
-          p,
+          stroke,
         );
         canvas.drawPath(
           Path()
             ..moveTo(13.4, 3.8)
             ..lineTo(13.4, 8.2)
             ..lineTo(17.7, 8.2),
-          p,
+          stroke,
         );
-        canvas.drawLine(const Offset(9, 13.6), const Offset(15, 13.6), p);
-        canvas.drawLine(const Offset(9, 16.6), const Offset(13.2, 16.6), p);
+        canvas.drawLine(const Offset(9, 13.6), const Offset(15, 13.6), stroke);
+        canvas.drawLine(const Offset(9, 16.6), const Offset(13.2, 16.6), stroke);
         break;
 
-      case Glyph.share:
-        for (final o in [const Offset(17.6, 5.9), const Offset(6.4, 12.1), const Offset(17.6, 18.3)]) {
-          canvas.drawCircle(o, 2.5, p);
+      case HandIcon.share:
+        for (final o in const [
+          Offset(17.6, 5.9),
+          Offset(6.4, 12.1),
+          Offset(17.6, 18.3),
+        ]) {
+          canvas.drawCircle(o, 2.5, stroke);
         }
-        canvas.drawLine(const Offset(8.7, 10.9), const Offset(15.3, 7.2), p);
-        canvas.drawLine(const Offset(8.7, 13.3), const Offset(15.3, 17.0), p);
+        canvas.drawLine(const Offset(8.7, 10.9), const Offset(15.3, 7.2), stroke);
+        canvas.drawLine(const Offset(8.7, 13.3), const Offset(15.3, 17.0), stroke);
         break;
 
-      case Glyph.pen:
+      case HandIcon.pen:
         canvas.drawPath(
           Path()
             ..moveTo(14.4, 4.6)
@@ -255,9 +268,9 @@ class _GlyphPainter extends CustomPainter {
             ..lineTo(5.1, 19.6)
             ..lineTo(6.1, 14.0)
             ..close(),
-          p,
+          stroke,
         );
-        canvas.drawLine(const Offset(13.1, 6.9), const Offset(18, 11.8), p);
+        canvas.drawLine(const Offset(13.1, 6.9), const Offset(18, 11.8), stroke);
         break;
     }
   }

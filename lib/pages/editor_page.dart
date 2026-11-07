@@ -122,7 +122,7 @@ class _EditorPageState extends State<EditorPage> {
               child: const SizedBox(
                 width: 48,
                 height: 48,
-                child: Center(child: HandGlyph(Glyph.back, opacity: 0.85)),
+                child: Center(child: HandGlyph(HandIcon.back, opacity: 0.85)),
               ),
             ),
             Expanded(
