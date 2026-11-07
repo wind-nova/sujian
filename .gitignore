@@ -1,0 +1,29 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# 构建时由 flutter create 生成的平台目录（不入库）
+android/
+ios/
+linux/
+macos/
+windows/
+web/
+
+# 字体源文件（只用 assets/fonts 下的子集）
+_fontsrc/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.lock.bak
+
+# OS
+.DS_Store
+Thumbs.db
