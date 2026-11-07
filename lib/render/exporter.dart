@@ -42,10 +42,8 @@ Future<Uint8List> buildPdf(PageDoc doc, {double widthMm = 210}) async {
   final pages = SujianInk.pageCount(doc);
   final pdf = pw.Document(creator: '素笺 SuJian');
 
-  final format = PdfPageFormat(
-    widthMm / 25.4 * PdfPageFormat.inch,
-    (widthMm * 4 / 3) / 25.4 * PdfPageFormat.inch,
-  );
+  final wPt = widthMm * 72 / 25.4;
+  final format = PdfPageFormat(wPt, wPt * 4 / 3);
 
   for (var i = 0; i < pages; i++) {
     final img = await renderPageImage(doc, i, 2000);

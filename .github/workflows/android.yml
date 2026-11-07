@@ -3,8 +3,6 @@ name: build-apk
 on:
   push:
     branches: [main, master]
-    paths-ignore:
-      - '**.md'
   workflow_dispatch:
 
 jobs:
@@ -16,6 +14,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # ── 自动识别工程在仓库根目录还是 app/ 子目录 ──
+      - name: 定位工程目录
+        run: |
+          set -e
+          if [ -f pubspec.yaml ]; then
+            dir="."
+          elif [ -f app/pubspec.yaml ]; then
+            dir="app"
+          else
+            echo "::error::仓库里找不到 pubspec.yaml，请确认推送的是 Flutter 工程（含 pubspec.yaml 的那一层）"
+            echo "当前根目录内容："
+            ls -la
+            exit 1
+          fi
+          echo "APP_DIR=$dir" >> "$GITHUB_ENV"
+          echo "工程目录 = $dir"
+          ls -la "$dir"
+
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
@@ -25,18 +41,59 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
           channel: stable
           cache: true
 
-      - name: Build
+      - name: 环境自检
         run: |
-          chmod +x tool/cloud_build.sh
-          ./tool/cloud_build.sh
+          flutter --version
+          dart --version
+          java -version
 
-      - name: Upload APK
+      # ── 生成 Android 平台脚手架（仓库里不提交 android/） ──
+      - name: 生成 Android 脚手架
+        working-directory: ${{ env.APP_DIR }}
+        run: flutter create --org com.sujian --project-name sujian --platforms=android .
+
+      # ── flutter create 会覆盖源码，这里还原成仓库里的版本 ──
+      - name: 还原源码
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          git checkout -- lib pubspec.yaml analysis_options.yaml || true
+          # 模板生成的 example test 引用的是计数器 App，会污染 analyze
+          rm -f test/widget_test.dart
+          head -n 8 pubspec.yaml
+          ls lib lib/render
+
+      - name: 应用 AndroidManifest
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          set -e
+          cp tool/android/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+          grep -n 'android:label' android/app/src/main/AndroidManifest.xml
+          grep -n 'applicationName\|MainActivity' android/app/src/main/AndroidManifest.xml | head -5
+          ls -la android/app/src/main/kotlin/com/sujian/sujian/ 2>/dev/null || find android/app/src/main -name 'MainActivity*'
+
+      - name: 拉依赖
+        working-directory: ${{ env.APP_DIR }}
+        run: flutter pub get
+
+      - name: 静态分析
+        working-directory: ${{ env.APP_DIR }}
+        continue-on-error: true
+        run: flutter analyze --no-fatal-infos
+
+      - name: 构建 APK
+        working-directory: ${{ env.APP_DIR }}
+        run: flutter build apk --release --split-per-abi
+
+      - name: 上传产物
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: sujian-apk
-          path: build/app/outputs/flutter-apk/*.apk
+          path: |
+            ${{ env.APP_DIR }}/build/app/outputs/flutter-apk/*.apk
+            ${{ env.APP_DIR }}/build/app/outputs/apk/release/*.apk
+          if-no-files-found: warn
           retention-days: 30

@@ -286,9 +286,10 @@ class _StampState extends State<_Stamp> with SingleTickerProviderStateMixin {
         builder: (_, __) {
           final t = _c.value;
           final opacity = t < 0.22 ? t / 0.22 : (t > 0.72 ? (1 - t) / 0.28 : 1.0);
-          final scale = 1.9 - 0.95 * Curves.easeOutBack.transform(t.clamp(0.0, 1.0));
+          final eased = Curves.easeOutBack.transform(t.clamp(0.0, 1.0).toDouble());
+          final scale = 1.9 - 0.95 * eased;
           return Opacity(
-            opacity: opacity.clamp(0.0, 1.0),
+            opacity: opacity.clamp(0.0, 1.0).toDouble(),
             child: Transform.rotate(
               angle: -9 * 3.14159 / 180,
               child: Transform.scale(

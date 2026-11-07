@@ -42,7 +42,22 @@ class PaperPainter extends CustomPainter {
     c.drawRect(rect, Paint()..color = spec.base);
 
     _mottle(c, size, type);
-    _print(c, size, type);
+    switch (type) {
+      case PaperType.ruled:
+        _ruled(c, size);
+        break;
+      case PaperType.grid:
+        _grid(c, size);
+        break;
+      case PaperType.kraft:
+        _kraft(c, size);
+        break;
+      case PaperType.vintage:
+        _vintage(c, size);
+        break;
+      case PaperType.sketch:
+        break;
+    }
     _grain(c, size, type);
     _edge(c, size, type);
     _light(c, size);
@@ -85,60 +100,74 @@ class PaperPainter extends CustomPainter {
     }
   }
 
-  /// 各纸种的印刷层
-  static void _print(Canvas c, Size size, PaperType type) {
-    final spec = type.spec;
+  /// 横线本：蓝灰横线 + 朱红页边线
+  static void _ruled(Canvas c, Size size) {
+    final spec = PaperType.ruled.spec;
     final w = size.width;
     final h = size.height;
 
-    switch (type) {
-      case PaperType.ruled:
-        final line = Paint()
-          ..color = const Color(0xFF7E9EB6).withAlpha(107)
-          ..strokeWidth = 1.15;
-        for (var y = spec.top + spec.lineH; y < h - spec.bottom + 20; y += spec.lineH) {
-          c.drawLine(Offset(spec.side - 26, y), Offset(w - spec.side + 26, y), line);
-        }
-        c.drawLine(
-          Offset(spec.side - 34, spec.top - 24),
-          Offset(spec.side - 34, h - spec.bottom + 26),
-          Paint()
-            ..color = const Color(0xFFC66054).withAlpha(97)
-            ..strokeWidth = 1.2,
-        );
-        break;
+    final stroke = Paint()
+      ..color = const Color(0xFF7E9EB6).withAlpha(107)
+      ..strokeWidth = 1.15;
 
-      case PaperType.grid:
-        final line = Paint()
-          ..color = const Color(0xFF8CA8B8).withAlpha(87)
-          ..strokeWidth = 0.9;
-        const step = 48.0;
-        for (var y = spec.top; y < h - spec.bottom + 24; y += step) {
-          c.drawLine(Offset(spec.side - 26, y), Offset(w - spec.side + 26, y), line);
-        }
-        for (var x = spec.side - 26; x < w - spec.side + 28; x += step) {
-          c.drawLine(Offset(x, spec.top - 20), Offset(x, h - spec.bottom + 24), line);
-        }
-        break;
+    for (var y = spec.top + spec.lineH; y < h - spec.bottom + 20; y += spec.lineH) {
+      c.drawLine(Offset(spec.side - 26, y), Offset(w - spec.side + 26, y), stroke);
+    }
 
-      case PaperType.kraft:
-        final rnd = Random(7712);
-        for (var i = 0; i < 900; i++) {
-          final x = rnd.nextDouble() * w;
-          final y = rnd.nextDouble() * h;
-          final len = 4 + rnd.nextDouble() * 26;
-          final a = (rnd.nextDouble() - 0.5) * 0.5;
-          final light = rnd.nextBool();
-          c.drawLine(
-            Offset(x, y),
-            Offset(x + cos(a) * len, y + sin(a) * len),
-            Paint()
-              ..color = (light ? const Color(0xFFFFF0D6) : const Color(0xFF60442A))
-                  .withAlpha(light ? 40 : 34)
-              ..strokeWidth = rnd.nextDouble() * 0.9 + 0.25,
-          );
-        }
-        final shade = LinearGradient(
+    c.drawLine(
+      Offset(spec.side - 34, spec.top - 24),
+      Offset(spec.side - 34, h - spec.bottom + 26),
+      Paint()
+        ..color = const Color(0xFFC66054).withAlpha(97)
+        ..strokeWidth = 1.2,
+    );
+  }
+
+  /// 方格纸
+  static void _grid(Canvas c, Size size) {
+    final spec = PaperType.grid.spec;
+    final w = size.width;
+    final h = size.height;
+    const step = 48.0;
+
+    final stroke = Paint()
+      ..color = const Color(0xFF8CA8B8).withAlpha(87)
+      ..strokeWidth = 0.9;
+
+    for (var y = spec.top; y < h - spec.bottom + 24; y += step) {
+      c.drawLine(Offset(spec.side - 26, y), Offset(w - spec.side + 26, y), stroke);
+    }
+    for (var x = spec.side - 26; x < w - spec.side + 28; x += step) {
+      c.drawLine(Offset(x, spec.top - 20), Offset(x, h - spec.bottom + 24), stroke);
+    }
+  }
+
+  /// 牛皮纸：纤维丝 + 上下压暗
+  static void _kraft(Canvas c, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final rnd = Random(7712);
+
+    for (var i = 0; i < 900; i++) {
+      final x = rnd.nextDouble() * w;
+      final y = rnd.nextDouble() * h;
+      final len = 4 + rnd.nextDouble() * 26;
+      final ang = (rnd.nextDouble() - 0.5) * 0.5;
+      final light = rnd.nextBool();
+      c.drawLine(
+        Offset(x, y),
+        Offset(x + cos(ang) * len, y + sin(ang) * len),
+        Paint()
+          ..color = (light ? const Color(0xFFFFF0D6) : const Color(0xFF60442A))
+              .withAlpha(light ? 40 : 34)
+          ..strokeWidth = rnd.nextDouble() * 0.9 + 0.25,
+      );
+    }
+
+    c.drawRect(
+      Offset.zero & size,
+      Paint()
+        ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
@@ -148,49 +177,51 @@ class PaperPainter extends CustomPainter {
             const Color(0xFF583A1E).withAlpha(51),
           ],
           stops: const [0.0, 0.12, 0.88, 1.0],
-        ).createShader(Offset.zero & size);
-        c.drawRect(Offset.zero & size, Paint()..shader = shade);
-        break;
+        ).createShader(Offset.zero & size),
+    );
+  }
 
-      case PaperType.vintage:
-        final rnd = Random(3391);
-        for (var i = 0; i < 26; i++) {
-          final center = Offset(rnd.nextDouble() * w, rnd.nextDouble() * h);
-          final r = 12 + rnd.nextDouble() * 74;
-          final alpha = ((0.02 + rnd.nextDouble() * 0.045) * 255).round();
-          final color = const Color(0xFF966834).withAlpha(alpha);
-          c.drawCircle(
-            center,
-            r,
-            Paint()
-              ..shader = RadialGradient(
-                colors: [color, color.withAlpha(0)],
-              ).createShader(Rect.fromCircle(center: center, radius: r)),
-          );
-        }
-        // 顶部小纹章
-        final ink = Paint()
-          ..color = const Color(0xFF8C6840).withAlpha(107)
-          ..strokeWidth = 0.9;
-        c.drawLine(Offset(w / 2 - 74, 74), Offset(w / 2 + 74, 74), ink);
-        final diamond = Path()
-          ..moveTo(w / 2 - 4, 70)
-          ..lineTo(w / 2 + 4, 74)
-          ..lineTo(w / 2 - 4, 78)
-          ..close();
-        c.drawPath(diamond, Paint()..color = const Color(0xFF8C6840).withAlpha(107));
-        break;
+  /// 复古信纸：霉斑 + 顶部小纹章
+  static void _vintage(Canvas c, Size size) {
+    final w = size.width;
+    final h = size.height;
+    final rnd = Random(3391);
 
-      case PaperType.sketch:
-        break;
+    for (var i = 0; i < 26; i++) {
+      final center = Offset(rnd.nextDouble() * w, rnd.nextDouble() * h);
+      final r = 12 + rnd.nextDouble() * 74;
+      final alpha = ((0.02 + rnd.nextDouble() * 0.045) * 255).round();
+      final color = const Color(0xFF966834).withAlpha(alpha);
+      c.drawCircle(
+        center,
+        r,
+        Paint()
+          ..shader = RadialGradient(
+            colors: [color, color.withAlpha(0)],
+          ).createShader(Rect.fromCircle(center: center, radius: r)),
+      );
     }
+
+    final ink = Paint()
+      ..color = const Color(0xFF8C6840).withAlpha(107)
+      ..strokeWidth = 0.9;
+    c.drawLine(Offset(w / 2 - 74, 74), Offset(w / 2 + 74, 74), ink);
+
+    final diamond = Path()
+      ..moveTo(w / 2 - 4, 70)
+      ..lineTo(w / 2 + 4, 74)
+      ..lineTo(w / 2 - 4, 78)
+      ..close();
+    c.drawPath(diamond, Paint()..color = const Color(0xFF8C6840).withAlpha(107));
   }
 
   /// 高频颗粒
   static void _grain(Canvas c, Size size, PaperType type) {
     final shader = TextureKit.grainShader;
     if (shader == null) return;
-    final alpha = type == PaperType.sketch ? 0.30 : (type == PaperType.kraft ? 0.22 : 0.17);
+    final alpha = type == PaperType.sketch
+        ? 0.30
+        : (type == PaperType.kraft ? 0.22 : 0.17);
     c.drawRect(
       Offset.zero & size,
       Paint()
@@ -205,16 +236,21 @@ class PaperPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     const e = 22.0;
-    final col = (type == PaperType.kraft ? const Color(0xFF3C2614) : const Color(0xFF786448))
+    final col = (type == PaperType.kraft
+            ? const Color(0xFF3C2614)
+            : const Color(0xFF786448))
         .withAlpha(33);
 
     void band(Rect r, Alignment from, Alignment to) {
-      final shader = LinearGradient(
-        begin: from,
-        end: to,
-        colors: [col, col.withAlpha(0)],
-      ).createShader(r);
-      c.drawRect(r, Paint()..shader = shader);
+      c.drawRect(
+        r,
+        Paint()
+          ..shader = LinearGradient(
+            begin: from,
+            end: to,
+            colors: [col, col.withAlpha(0)],
+          ).createShader(r),
+      );
     }
 
     band(Rect.fromLTWH(0, 0, e, h), Alignment.centerLeft, Alignment.centerRight);
@@ -225,9 +261,6 @@ class PaperPainter extends CustomPainter {
 
   /// 暗角 + 暖光
   static void _light(Canvas c, Size size) {
-    final w = size.width;
-    final h = size.height;
-
     c.drawRect(
       Offset.zero & size,
       Paint()
@@ -248,7 +281,7 @@ class PaperPainter extends CustomPainter {
       Paint()
         ..shader = LinearGradient(
           begin: Alignment.topLeft,
-          end: Alignment(0.72, 0.86),
+          end: const Alignment(0.72, 0.86),
           colors: [
             const Color(0xFFFFF7E2).withAlpha(51),
             const Color(0xFFFFF7E2).withAlpha(10),

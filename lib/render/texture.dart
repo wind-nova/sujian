@@ -18,7 +18,7 @@ class TextureKit {
     final rnd = Random(20261024);
     final bytes = Uint8List(_tile * _tile * 4);
     for (var i = 0; i < _tile * _tile; i++) {
-      final v = (128 + (rnd.nextDouble() - 0.5) * 46).round().clamp(0, 255);
+      final v = (128 + (rnd.nextDouble() - 0.5) * 46).round().clamp(0, 255).toInt();
       bytes[i * 4] = v;
       bytes[i * 4 + 1] = v;
       bytes[i * 4 + 2] = v;
