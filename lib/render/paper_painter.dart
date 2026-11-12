@@ -182,7 +182,6 @@ class PaperPainter extends CustomPainter {
         ).createShader(Offset.zero & size),
     );
   }
-}
 
   /// 复古信纸：霉斑 + 顶部小纹章
   static void _vintage(Canvas c, Size size) {
@@ -296,3 +295,4 @@ class PaperPainter extends CustomPainter {
         ).createShader(Offset.zero & size),
     );
   }
+}
