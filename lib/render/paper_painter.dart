@@ -175,13 +175,14 @@ class PaperPainter extends CustomPainter {
           colors: [
             const Color(0xFF583A1E).withAlpha(41),
             const Color(0xFF583A1E).withAlpha(0),
-            const Color(0xFF583A1E).withAlpha(0),
+            const Color(0xFF583A1E).withAlpha(10),
             const Color(0xFF583A1E).withAlpha(51),
           ],
           stops: const [0.0, 0.12, 0.88, 1.0],
         ).createShader(Offset.zero & size),
     );
   }
+}
 
   /// 复古信纸：霉斑 + 顶部小纹章
   static void _vintage(Canvas c, Size size) {
@@ -295,4 +296,3 @@ class PaperPainter extends CustomPainter {
         ).createShader(Offset.zero & size),
     );
   }
-}

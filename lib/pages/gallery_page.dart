@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/store.dart';
+import '../model.dart';
 import '../render/paper_painter.dart';
 import '../theme.dart';
 import '../theme/skin.dart';
@@ -212,7 +213,12 @@ class GalleryPage extends StatelessWidget {
           border: Border.all(color: C.text1.withAlpha(30)),
           boxShadow: const [
             BoxShadow(color: Color(0x1A3C3223), blurRadius: 2, offset: Offset(0, 1)),
-            BoxShadow(color: Color(0x663C3223), blurRadius: 22, offset: Offset(0, 10), spreadRadius: -8),
+            BoxShadow(
+              color: Color(0x663C3223),
+              blurRadius: 22,
+              offset: Offset(0, 10),
+              spreadRadius: -8,
+            ),
           ],
         ),
         child: Center(child: HandGlyph(HandIcon.plus, size: 20, opacity: 0.8)),

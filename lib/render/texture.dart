@@ -14,7 +14,6 @@ class TextureKit {
   static Future<void> init() async {
     if (grain != null) return;
 
-    // 高频颗粒：190×190 的灰度噪声，平铺后按 overlay 叠到纸上
     final rnd = Random(20261024);
     final bytes = Uint8List(_tile * _tile * 4);
     for (var i = 0; i < _tile * _tile; i++) {

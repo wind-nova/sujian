@@ -28,8 +28,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _caret = AnimationController(vsync: this, duration: const Duration(milliseconds: 1150))
-      ..repeat();
+    _caret = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1150),
+    )..repeat();
   }
 
   @override
@@ -45,7 +47,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         transitionDuration: const Duration(milliseconds: 360),
         pageBuilder: (_, __, ___) => EditorPage(entry: entry),
         transitionsBuilder: (_, anim, __, child) {
-          final curved = CurvedAnimation(parent: anim, curve: const Cubic(0.22, 1.2, 0.36, 1));
+          final curved = CurvedAnimation(
+            parent: anim,
+            curve: const Cubic(0.22, 1.2, 0.36, 1),
+          );
           return FadeTransition(
             opacity: anim,
             child: ScaleTransition(
@@ -205,9 +210,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 clipBehavior: Clip.none,
                 children: [
                   if (store.count > 1)
-                    Positioned(left: 16, right: 16, top: 20, bottom: -20, child: _underSheet(2)),
+                    Positioned(
+                      left: 16,
+                      right: 16,
+                      top: 20,
+                      bottom: -20,
+                      child: _underSheet(2),
+                    ),
                   if (store.count > 0)
-                    Positioned(left: 8, right: 8, top: 10, bottom: -10, child: _underSheet(1)),
+                    Positioned(
+                      left: 8,
+                      right: 8,
+                      top: 10,
+                      bottom: -10,
+                      child: _underSheet(1),
+                    ),
                   Positioned.fill(
                     child: GestureDetector(onTap: () => _openEditor(), child: _paper()),
                   ),
@@ -235,7 +252,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         color: Color.lerp(C.paperCream, C.ambient1, depth * 0.10),
         borderRadius: BorderRadius.circular(3),
         boxShadow: const [
-          BoxShadow(color: Color(0x263C3223), blurRadius: 14, offset: Offset(0, 6), spreadRadius: -6),
+          BoxShadow(
+            color: Color(0x263C3223),
+            blurRadius: 14,
+            offset: Offset(0, 6),
+            spreadRadius: -6,
+          ),
         ],
       ),
     );
@@ -253,16 +275,22 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         child: Stack(
           children: [
             const Positioned.fill(child: CustomPaint(painter: _HomePaperPainter())),
-
             const Positioned(left: 14, top: 13, child: CornerPin(size: 21, angle: -0.14)),
             const Positioned(right: 15, top: 15, child: CornerFlower(size: 21, angle: 0.42)),
-            const Positioned(left: 16, bottom: 14, child: CornerFlower(size: 18, angle: 0.9, opacity: 0.45)),
+            const Positioned(
+              left: 16,
+              bottom: 14,
+              child: CornerFlower(size: 18, angle: 0.9, opacity: 0.45),
+            ),
             const Positioned(right: 13, bottom: 12, child: CornerPin(size: 19, angle: 0.16)),
-
             Column(
               children: [
                 const SizedBox(height: 116),
-                SizedBox(width: 132, height: 132, child: CustomPaint(painter: _PenIllustration())),
+                SizedBox(
+                  width: 132,
+                  height: 132,
+                  child: CustomPaint(painter: _PenIllustration()),
+                ),
                 const SizedBox(height: 22),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

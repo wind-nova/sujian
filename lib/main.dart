@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'data/store.dart';
 import 'pages/home_page.dart';
 import 'render/texture.dart';
+import 'theme.dart';
 import 'theme/skin.dart';
 
 Future<void> main() async {
@@ -23,14 +24,14 @@ Future<void> main() async {
 }
 
 void _applySystemUi() {
-  final dark = SkinStore.instance.current.dark;
+  final skin = SkinStore.instance.current;
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
-      statusBarBrightness: dark ? Brightness.dark : Brightness.light,
-      systemNavigationBarColor: SkinStore.instance.current.ambient2,
-      systemNavigationBarIconBrightness: dark ? Brightness.light : Brightness.dark,
+      statusBarIconBrightness: skin.dark ? Brightness.light : Brightness.dark,
+      statusBarBrightness: skin.dark ? Brightness.dark : Brightness.light,
+      systemNavigationBarColor: skin.ambient2,
+      systemNavigationBarIconBrightness: skin.dark ? Brightness.light : Brightness.dark,
     ),
   );
 }

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -111,7 +110,7 @@ class _ResultPageState extends State<ResultPage> {
   Future<Uint8List> _bytesOf(int i) async {
     final cached = _pngs[i];
     if (cached != null) return cached;
-    final bytes = await renderPng(_doc, i, 1620);
+    final bytes = await renderPng(_doc, i, width: 1620);
     _pngs[i] = bytes;
     return bytes;
   }
@@ -279,7 +278,7 @@ class _ResultPageState extends State<ResultPage> {
           Expanded(
             child: Center(
               child: Transform.rotate(
-                angle: -0.55 * 3.14159 / 180,
+                angle: -0.55 * 3.1415926535 / 180,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(2),
@@ -295,7 +294,10 @@ class _ResultPageState extends State<ResultPage> {
                               child: SizedBox(
                                 width: 16,
                                 height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 1.3, color: C.text3),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 1.3,
+                                  color: C.text3,
+                                ),
                               ),
                             ),
                           )
@@ -427,7 +429,7 @@ class _StampState extends State<_Stamp> with SingleTickerProviderStateMixin {
           return Opacity(
             opacity: opacity.clamp(0.0, 1.0).toDouble(),
             child: Transform.rotate(
-              angle: -9 * 3.14159 / 180,
+              angle: -9 * 3.1415926535 / 180,
               child: Transform.scale(
                 scale: scale,
                 child: Container(

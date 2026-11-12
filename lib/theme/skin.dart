@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// 一套「世界」：环境光 + 五张纸 + 墨/文字色 + 朱红。
-/// UI 的骨架（间距、圆角、阴影）不随主题变，只有"纸和光"在变。
+/// 一套「世界」：环境光 + 五张纸 + 朱红 + 玻璃参数。
+/// UI 的骨架（间距、圆角、阴影）不随主题变，只有纸和光在变。
 @immutable
 class SujianSkin {
   final String id;
@@ -28,12 +28,10 @@ class SujianSkin {
   final Color text2;
   final Color text3;
 
-  /// 暗角 / 颗粒强度系数（1.0 为基准）
   final double vignette;
   final double grain;
   final bool dark;
 
-  // ── 玻璃层（L1 桌面）：仅用于抽屉、面板、操作栏，纸层不受影响 ──
   final double glassBlur;
   final Color glassTint;
   final double glassRadius;
@@ -110,7 +108,6 @@ class Skins {
     dark: true,
     glassBlur: 26,
     glassTint: Color(0xB82A2622),
-    glassRadius: 24,
     glassEdge: 0.22,
   );
 
@@ -135,7 +132,6 @@ class Skins {
     vignette: 0.85,
     glassBlur: 20,
     glassTint: Color(0xB4F4F8F6),
-    glassRadius: 24,
     glassEdge: 0.80,
   );
 
@@ -161,7 +157,6 @@ class Skins {
     grain: 1.25,
     glassBlur: 20,
     glassTint: Color(0xBCF2EBDE),
-    glassRadius: 24,
     glassEdge: 0.70,
   );
 
@@ -201,7 +196,7 @@ class Skins {
   }
 }
 
-/// 当前主题。切换时通知整棵树重建，同时让纸层重绘。
+/// 当前主题。切换时通知整棵树重建，并让纸层重绘。
 class SkinStore extends ChangeNotifier {
   SkinStore._();
 
@@ -209,8 +204,6 @@ class SkinStore extends ChangeNotifier {
 
   SujianSkin _current = Skins.sujian;
   SujianSkin get current => _current;
-
-  int indexOf(SujianSkin s) => Skins.all.indexOf(s);
 
   File? _file;
 
@@ -252,6 +245,8 @@ class SkinStore extends ChangeNotifier {
     try {
       final f = await _resolve();
       await f.writeAsString(jsonEncode({'skin': _current.id}), flush: true);
-    } catch (_) {}
+    } catch (_) {
+      // 落盘失败不影响使用
+    }
   }
 }

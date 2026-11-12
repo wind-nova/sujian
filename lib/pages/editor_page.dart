@@ -10,6 +10,7 @@ import '../render/exporter.dart';
 import '../render/ink_painter.dart';
 import '../render/scene.dart';
 import '../theme.dart';
+import '../theme/skin.dart';
 import '../widgets/glass_panel.dart';
 import '../widgets/hand_button.dart';
 import 'result_page.dart';
@@ -134,10 +135,11 @@ class _EditorPageState extends State<EditorPage> {
       barrierColor: C.text1.withAlpha(46),
       builder: (ctx) => _TextSheet(controller: controller),
     );
+    if (text != null) {
+      _setDoc(_doc.copyWith(text: text));
+      setState(() => _page = 0);
+    }
     controller.dispose();
-    if (text == null) return;
-    _setDoc(_doc.copyWith(text: text));
-    setState(() => _page = 0);
   }
 
   void _swipe(DragEndDetails d) {
@@ -150,21 +152,26 @@ class _EditorPageState extends State<EditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: C.ambient1,
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        decoration: SujianTheme.ambientBg,
-        child: SafeArea(
-          child: Column(
-            children: [
-              _appBar(),
-              Expanded(child: _preview()),
-              _drawer(),
-            ],
+    return AnimatedBuilder(
+      animation: SkinStore.instance,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: C.ambient1,
+          resizeToAvoidBottomInset: false,
+          body: Container(
+            decoration: SujianTheme.ambientBg,
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _appBar(),
+                  Expanded(child: _preview()),
+                  _drawer(),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -210,11 +217,18 @@ class _EditorPageState extends State<EditorPage> {
                         ? SizedBox(
                             width: 12,
                             height: 12,
-                            child: CircularProgressIndicator(strokeWidth: 1.4, color: C.accent),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 1.4,
+                              color: C.accent,
+                            ),
                           )
                         : Text(
                             '生成',
-                            style: TextStyle(fontSize: 12, letterSpacing: 1.2, color: C.accent),
+                            style: TextStyle(
+                              fontSize: 12,
+                              letterSpacing: 1.2,
+                              color: C.accent,
+                            ),
                           ),
                   ),
                 ),
@@ -262,7 +276,11 @@ class _EditorPageState extends State<EditorPage> {
                             child: Center(
                               child: Text(
                                 '${_page + 1} / $pages',
-                                style: TextStyle(fontSize: 9, letterSpacing: 1.0, color: C.text2),
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  letterSpacing: 1.0,
+                                  color: C.text2,
+                                ),
                               ),
                             ),
                           ),
@@ -272,7 +290,9 @@ class _EditorPageState extends State<EditorPage> {
                           left: 2,
                           top: 0,
                           bottom: 0,
-                          child: Center(child: HandGlyph(HandIcon.back, size: 14, opacity: 0.16)),
+                          child: Center(
+                            child: HandGlyph(HandIcon.back, size: 14, opacity: 0.16),
+                          ),
                         ),
                       if (hasNext)
                         Positioned(
@@ -354,7 +374,11 @@ class _EditorPageState extends State<EditorPage> {
                 children: [
                   Text(
                     '已自动保存 · ${_two(_savedAt.hour)}:${_two(_savedAt.minute)}',
-                    style: TextStyle(fontSize: 9, letterSpacing: 1.2, color: C.text3.withAlpha(160)),
+                    style: TextStyle(
+                      fontSize: 9,
+                      letterSpacing: 1.2,
+                      color: C.text3.withAlpha(160),
+                    ),
                   ),
                   const Spacer(),
                   Text('↑', style: TextStyle(fontSize: 11, color: C.text3.withAlpha(160))),

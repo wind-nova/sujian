@@ -1,74 +1,69 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
 
-/// 手绘椭圆按钮（首页「书写」）
-class HandOvalButton extends StatefulWidget {
+// ─────────────────────────────────────────────────────────────
+// 手绘按钮：一颗不闭合的椭圆，笔画有粗细变化
+// ─────────────────────────────────────────────────────────────
+
+class HandOvalButton extends StatelessWidget {
   final String label;
   final String? latin;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final double width;
+  final double height;
 
   const HandOvalButton({
     super.key,
     required this.label,
-    required this.onTap,
     this.latin,
+    this.onTap,
+    this.width = 206,
+    this.height = 56,
   });
-
-  @override
-  State<HandOvalButton> createState() => _HandOvalButtonState();
-}
-
-class _HandOvalButtonState extends State<HandOvalButton> {
-  bool _down = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _down = true),
-      onTapCancel: () => setState(() => _down = false),
-      onTapUp: (_) {
-        setState(() => _down = false);
-        widget.onTap();
-      },
-      child: AnimatedScale(
-        scale: _down ? 0.975 : 1.0,
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOut,
-        child: SizedBox(
-          width: 214,
-          height: 58,
-          child: CustomPaint(
-            painter: _OvalPainter(),
-            child: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned.fill(child: CustomPaint(painter: _OvalPainter())),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    letterSpacing: 4.2,
+                    color: C.text1,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                if (latin != null) ...[
+                  const SizedBox(width: 8),
                   Text(
-                    widget.label,
-                    style: const TextStyle(
-                      fontSize: 14.5,
-                      letterSpacing: 6,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF4A443B),
+                    latin!,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                      color: C.text2,
                     ),
                   ),
-                  if (widget.latin != null) const SizedBox(width: 8),
-                  if (widget.latin != null)
-                    Text(
-                      widget.latin!,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontStyle: FontStyle.italic,
-                        color: C.text2,
-                      ),
-                    ),
                 ],
-              ),
+              ],
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -80,32 +75,48 @@ class _OvalPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
+    final rnd = Random(4211);
 
-    final path = Path()
-      ..moveTo(w * 0.5, 2.6)
-      ..cubicTo(w * 0.79, 3.8, w - 3.2, h * 0.29, w - 3.0, h * 0.51)
-      ..cubicTo(w - 2.8, h * 0.74, w * 0.75, h - 3.0, w * 0.49, h - 3.2)
-      ..cubicTo(w * 0.23, h - 3.4, 3.2, h * 0.75, 3.0, h * 0.50)
-      ..cubicTo(2.8, h * 0.27, w * 0.21, 3.2, w * 0.5, 2.6)
-      ..close();
+    final path = Path();
+    const steps = 48;
+    for (var i = 0; i <= steps; i++) {
+      final t = i / steps;
+      final a = t * 2 * pi - pi / 2;
+      final wobble = 1 + (sin(a * 2.3) * 0.012 + (rnd.nextDouble() - 0.5) * 0.008);
+      final taper = 0.985 + 0.015 * sin(t * pi);
+      final rx = (w / 2 - 1.2) * wobble * taper;
+      final ry = (h / 2 - 1.2) * wobble * taper;
+      final px = w / 2 + cos(a) * rx;
+      final py = h / 2 + sin(a) * ry;
+      if (i == 0) {
+        path.moveTo(px, py);
+      } else {
+        path.lineTo(px, py);
+      }
+    }
+    path.close();
 
-    canvas.drawShadow(path, const Color(0x334A3820), 10, true);
-    canvas.drawPath(path, Paint()..color = const Color(0xFFFCFAF4));
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.fill
+        ..color = C.surfaceCard.withAlpha(252),
+    );
     canvas.drawPath(
       path,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2
-        ..color = const Color(0x8C4A443B),
+        ..strokeWidth = 1.25
+        ..color = C.text1.withAlpha(140),
     );
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter old) => false;
+  bool shouldRepaint(covariant CustomPainter old) => true;
 }
 
 // ─────────────────────────────────────────────────────────────
-// 手绘图标集
+// 手绘图标
 // ─────────────────────────────────────────────────────────────
 
 enum HandIcon { menu, drafts, back, arrow, save, pdf, share, pen, bookmark, plus, trash }
@@ -147,35 +158,50 @@ class _GlyphPainter extends CustomPainter {
 
     final stroke = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1.45
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
       ..color = color;
 
     switch (type) {
       case HandIcon.menu:
-        for (final y in [8.1, 12.1, 16.1]) {
-          final right = y > 16 ? 16.4 : 19.2;
-          canvas.drawPath(
-            Path()
-              ..moveTo(4.7, y)
-              ..quadraticBezierTo(12, y - 0.5, right, y + 0.15),
-            stroke,
-          );
-        }
+        canvas.drawPath(
+          Path()
+            ..moveTo(4.6, 8.1)
+            ..quadraticBezierTo(11.4, 7.7, 19.4, 8.2),
+          stroke,
+        );
+        canvas.drawPath(
+          Path()
+            ..moveTo(4.9, 12.1)
+            ..quadraticBezierTo(11.8, 11.6, 19.1, 12.2),
+          stroke,
+        );
+        canvas.drawPath(
+          Path()
+            ..moveTo(4.7, 16.1)
+            ..quadraticBezierTo(10.2, 15.6, 16.4, 16.2),
+          stroke,
+        );
         break;
 
       case HandIcon.drafts:
-        canvas.drawRRect(
-          RRect.fromLTRBR(7.2, 5.2, 16.3, 17.4, const Radius.circular(1)),
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.5
-            ..strokeCap = StrokeCap.round
-            ..color = color.withAlpha(90),
+        canvas.drawPath(
+          Path()
+            ..moveTo(7.2, 5.2)
+            ..lineTo(16.3, 5.4)
+            ..lineTo(16.8, 17.6)
+            ..lineTo(7.5, 17.9)
+            ..close(),
+          stroke,
         );
-        canvas.drawRRect(
-          RRect.fromLTRBR(5.1, 7.4, 14.3, 19.5, const Radius.circular(1)),
+        canvas.drawPath(
+          Path()
+            ..moveTo(5.1, 7.4)
+            ..lineTo(14.3, 7.6)
+            ..lineTo(14.8, 19.7)
+            ..lineTo(5.3, 19.9)
+            ..close(),
           stroke,
         );
         break;
@@ -183,9 +209,9 @@ class _GlyphPainter extends CustomPainter {
       case HandIcon.back:
         canvas.drawPath(
           Path()
-            ..moveTo(15.1, 5.9)
-            ..quadraticBezierTo(10.9, 9.1, 6.9, 12.1)
-            ..quadraticBezierTo(11, 15.1, 15.2, 18.2),
+            ..moveTo(14.9, 6.1)
+            ..quadraticBezierTo(10.8, 9.2, 6.9, 12.1)
+            ..quadraticBezierTo(10.9, 15.0, 15.0, 18.0),
           stroke,
         );
         break;
@@ -193,37 +219,28 @@ class _GlyphPainter extends CustomPainter {
       case HandIcon.arrow:
         canvas.drawPath(
           Path()
-            ..moveTo(3, 3)
-            ..quadraticBezierTo(16, 4, 19, 11)
-            ..quadraticBezierTo(21.5, 16.5, 15.5, 19.5),
+            ..moveTo(5.2, 16.4)
+            ..quadraticBezierTo(12.6, 15.4, 17.6, 8.4),
           stroke,
         );
-        canvas.drawPath(
-          Path()
-            ..moveTo(15.2, 14.6)
-            ..lineTo(15.5, 19.8)
-            ..lineTo(20.4, 18.6),
-          stroke,
-        );
+        canvas.drawLine(const Offset(13.1, 6.9), const Offset(18, 11.8), stroke);
         break;
 
       case HandIcon.save:
-        canvas.drawLine(const Offset(12, 3.6), const Offset(12, 14.4), stroke);
+        canvas.drawLine(const Offset(12, 4.4), const Offset(12, 15.2), stroke);
         canvas.drawPath(
           Path()
-            ..moveTo(8, 10.6)
-            ..lineTo(12, 14.7)
-            ..lineTo(16, 10.4),
+            ..moveTo(8, 11.2)
+            ..lineTo(12, 15.3)
+            ..lineTo(16, 11.0),
           stroke,
         );
         canvas.drawPath(
           Path()
-            ..moveTo(4.6, 17.2)
-            ..lineTo(4.6, 18.8)
-            ..quadraticBezierTo(4.6, 20.4, 6.3, 20.4)
-            ..lineTo(17.7, 20.4)
-            ..quadraticBezierTo(19.4, 20.4, 19.4, 18.8)
-            ..lineTo(19.4, 17.2),
+            ..moveTo(5.0, 17.2)
+            ..lineTo(5.0, 18.6)
+            ..lineTo(19.0, 18.6)
+            ..lineTo(19.0, 17.2),
           stroke,
         );
         break;
@@ -231,33 +248,29 @@ class _GlyphPainter extends CustomPainter {
       case HandIcon.pdf:
         canvas.drawPath(
           Path()
-            ..moveTo(6.2, 3.6)
-            ..lineTo(13.6, 3.6)
-            ..lineTo(18, 8.1)
-            ..lineTo(18, 20.4)
-            ..lineTo(6.2, 20.4)
+            ..moveTo(6.4, 4.0)
+            ..lineTo(13.6, 4.2)
+            ..lineTo(17.8, 8.6)
+            ..lineTo(17.6, 20.0)
+            ..lineTo(6.4, 20.0)
             ..close(),
           stroke,
         );
         canvas.drawPath(
           Path()
-            ..moveTo(13.4, 3.8)
-            ..lineTo(13.4, 8.2)
-            ..lineTo(17.7, 8.2),
+            ..moveTo(13.3, 4.4)
+            ..lineTo(13.2, 8.7)
+            ..lineTo(17.4, 8.8),
           stroke,
         );
-        canvas.drawLine(const Offset(9, 13.6), const Offset(15, 13.6), stroke);
-        canvas.drawLine(const Offset(9, 16.6), const Offset(13.2, 16.6), stroke);
+        canvas.drawLine(const Offset(9.0, 13.4), const Offset(15.0, 13.4), stroke);
+        canvas.drawLine(const Offset(9.0, 16.4), const Offset(13.0, 16.4), stroke);
         break;
 
       case HandIcon.share:
-        for (final o in const [
-          Offset(17.6, 5.9),
-          Offset(6.4, 12.1),
-          Offset(17.6, 18.3),
-        ]) {
-          canvas.drawCircle(o, 2.5, stroke);
-        }
+        canvas.drawCircle(const Offset(17.6, 5.9), 2.5, stroke);
+        canvas.drawCircle(const Offset(6.4, 12.1), 2.5, stroke);
+        canvas.drawCircle(const Offset(17.6, 18.3), 2.5, stroke);
         canvas.drawLine(const Offset(8.7, 10.9), const Offset(15.3, 7.2), stroke);
         canvas.drawLine(const Offset(8.7, 13.3), const Offset(15.3, 17.0), stroke);
         break;

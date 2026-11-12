@@ -87,7 +87,12 @@ class SkinPage extends StatelessWidget {
             width: selected ? 1.2 : 1,
           ),
           boxShadow: const [
-            BoxShadow(color: Color(0x143C3223), blurRadius: 12, offset: Offset(0, 6), spreadRadius: -6),
+            BoxShadow(
+              color: Color(0x143C3223),
+              blurRadius: 12,
+              offset: Offset(0, 6),
+              spreadRadius: -6,
+            ),
           ],
         ),
         child: Row(

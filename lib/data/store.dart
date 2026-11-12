@@ -75,10 +75,11 @@ class Entry {
     );
   }
 
-  /// 首行摘要，用于列表与首页
   String get preview {
-    final first = text.trim().split('\n').firstWhere((l) => l.trim().isNotEmpty, orElse: () => '');
-    return first.isEmpty ? '（空白的一页）' : first;
+    for (final line in text.split('\n')) {
+      if (line.trim().isNotEmpty) return line;
+    }
+    return '（空白的一页）';
   }
 
   int get charCount => text.replaceAll(RegExp(r'\s'), '').length;
@@ -138,6 +139,7 @@ class EntryStore extends ChangeNotifier {
   bool get loaded => _loaded;
   int get count => _entries.length;
   bool get isEmpty => _entries.isEmpty;
+  bool get isNotEmpty => _entries.isNotEmpty;
 
   Entry? get latest => _entries.isEmpty ? null : _entries.first;
 
