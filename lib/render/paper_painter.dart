@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../model.dart';
+import '../theme/skin.dart';
 import 'ornaments.dart';
 import 'texture.dart';
 
@@ -12,7 +13,8 @@ class PaperPainter extends CustomPainter {
   final PaperType type;
   final bool ornaments;
 
-  const PaperPainter(this.type, {this.ornaments = true});
+  PaperPainter(this.type, {this.ornaments = true})
+      : super(repaint: SkinStore.instance);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -219,9 +221,10 @@ class PaperPainter extends CustomPainter {
   static void _grain(Canvas c, Size size, PaperType type) {
     final shader = TextureKit.grainShader;
     if (shader == null) return;
-    final alpha = type == PaperType.sketch
+    final base = type == PaperType.sketch
         ? 0.30
         : (type == PaperType.kraft ? 0.22 : 0.17);
+    final alpha = (base * SkinStore.instance.current.grain).clamp(0.0, 0.6);
     c.drawRect(
       Offset.zero & size,
       Paint()
@@ -270,7 +273,8 @@ class PaperPainter extends CustomPainter {
           colors: [
             Colors.transparent,
             const Color(0xFF46372B).withAlpha(9),
-            const Color(0xFF3A2C1A).withAlpha(43),
+            const Color(0xFF3A2C1A)
+                .withAlpha((43 * SkinStore.instance.current.vignette).round()),
           ],
           stops: const [0.0, 0.62, 1.0],
         ).createShader(Offset.zero & size),

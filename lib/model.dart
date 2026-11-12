@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'theme.dart';
+import 'theme/skin.dart';
 
 /// 画布设计坐标系：900 × 1200（3:4）
 const double kPageW = 900;
@@ -31,13 +32,24 @@ class PaperSpec {
   int get lines => ((kPageH - top - bottom) / lineH).floor();
 }
 
-const Map<PaperType, PaperSpec> kPapers = {
-  PaperType.ruled: PaperSpec(base: C.paperCream, lineH: 64, top: 96, bottom: 110, side: 74),
-  PaperType.grid: PaperSpec(base: C.paperGrid, lineH: 48, top: 84, bottom: 100, side: 72),
-  PaperType.kraft: PaperSpec(base: C.paperKraft, lineH: 62, top: 96, bottom: 110, side: 76),
-  PaperType.sketch: PaperSpec(base: C.paperSketch, lineH: 66, top: 100, bottom: 120, side: 80),
-  PaperType.vintage: PaperSpec(base: C.paperVintage, lineH: 60, top: 122, bottom: 118, side: 78),
-};
+/// 纸的度量是固定的，纸色随主题变——所以按当前主题缓存一份
+String? _paperCacheSkin;
+Map<PaperType, PaperSpec>? _paperCache;
+
+Map<PaperType, PaperSpec> get kPapers {
+  final id = SkinStore.instance.current.id;
+  if (_paperCacheSkin == id && _paperCache != null) return _paperCache!;
+  final m = <PaperType, PaperSpec>{
+    PaperType.ruled: PaperSpec(base: C.paperCream, lineH: 64, top: 96, bottom: 110, side: 74),
+    PaperType.grid: PaperSpec(base: C.paperGrid, lineH: 48, top: 84, bottom: 100, side: 72),
+    PaperType.kraft: PaperSpec(base: C.paperKraft, lineH: 62, top: 96, bottom: 110, side: 76),
+    PaperType.sketch: PaperSpec(base: C.paperSketch, lineH: 66, top: 100, bottom: 120, side: 80),
+    PaperType.vintage: PaperSpec(base: C.paperVintage, lineH: 60, top: 122, bottom: 118, side: 78),
+  };
+  _paperCacheSkin = id;
+  _paperCache = m;
+  return m;
+}
 
 extension PaperTypeX on PaperType {
   PaperSpec get spec => kPapers[this]!;

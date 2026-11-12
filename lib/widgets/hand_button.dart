@@ -108,27 +108,30 @@ class _OvalPainter extends CustomPainter {
 // 手绘图标集
 // ─────────────────────────────────────────────────────────────
 
-enum HandIcon { menu, drafts, back, arrow, save, pdf, share, pen }
+enum HandIcon { menu, drafts, back, arrow, save, pdf, share, pen, bookmark, plus, trash }
 
 class HandGlyph extends StatelessWidget {
   final HandIcon type;
   final double size;
-  final Color color;
+  final Color? color;
   final double opacity;
 
   const HandGlyph(
     this.type, {
     super.key,
     this.size = 22,
-    this.color = C.text1,
+    this.color,
     this.opacity = 0.78,
   });
 
   @override
-  Widget build(BuildContext context) => CustomPaint(
-        size: Size(size, size),
-        painter: _GlyphPainter(type, color.withAlpha((opacity * 255).round())),
-      );
+  Widget build(BuildContext context) {
+    final c = color ?? C.text1;
+    return CustomPaint(
+      size: Size(size, size),
+      painter: _GlyphPainter(type, c.withAlpha((opacity * 255).round())),
+    );
+  }
 }
 
 class _GlyphPainter extends CustomPainter {
@@ -271,6 +274,45 @@ class _GlyphPainter extends CustomPainter {
           stroke,
         );
         canvas.drawLine(const Offset(13.1, 6.9), const Offset(18, 11.8), stroke);
+        break;
+
+      case HandIcon.bookmark:
+        // 手绘书签：底端缺口略不对称，像随手剪的
+        canvas.drawPath(
+          Path()
+            ..moveTo(7.8, 3.8)
+            ..lineTo(16.1, 4.2)
+            ..lineTo(16.0, 19.6)
+            ..lineTo(12.1, 16.2)
+            ..lineTo(7.9, 19.8)
+            ..close(),
+          stroke,
+        );
+        break;
+
+      case HandIcon.plus:
+        canvas.drawLine(const Offset(12, 5.2), const Offset(12, 18.8), stroke);
+        canvas.drawLine(const Offset(5.2, 12), const Offset(18.8, 12), stroke);
+        break;
+
+      case HandIcon.trash:
+        canvas.drawLine(const Offset(5.4, 7.2), const Offset(18.6, 7.0), stroke);
+        canvas.drawPath(
+          Path()
+            ..moveTo(9.4, 7.0)
+            ..lineTo(9.6, 4.4)
+            ..lineTo(14.4, 4.6)
+            ..lineTo(14.6, 7.0),
+          stroke,
+        );
+        canvas.drawPath(
+          Path()
+            ..moveTo(7.0, 8.6)
+            ..lineTo(7.8, 19.6)
+            ..lineTo(16.4, 19.4)
+            ..lineTo(17.0, 8.6),
+          stroke,
+        );
         break;
     }
   }

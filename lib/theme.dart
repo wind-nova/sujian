@@ -1,48 +1,59 @@
 import 'package:flutter/material.dart';
 
-/// 素笺 · 设计令牌（与《UI 设计规范》§1.2 / 附录 A 一一对应）
+import 'theme/skin.dart';
+
+/// 颜色令牌。全部转发到当前主题（SujianSkin），
+/// 切换主题时所有引用 C.xxx 的地方自动跟着变。
 class C {
-  // 环境
-  static const ambient0 = Color(0xFFEFEBE1);
-  static const ambient1 = Color(0xFFE9E5DB);
-  static const ambient2 = Color(0xFFDED8CA);
-  static const surfaceCard = Color(0xFFFCFAF4);
-  static const surfaceGlass = Color(0xD1FAF7F0);
+  static SujianSkin get s => SkinStore.instance.current;
+
+  // 环境光
+  static Color get ambient0 => s.ambient0;
+  static Color get ambient1 => s.ambient1;
+  static Color get ambient2 => s.ambient2;
+  static Color get surfaceCard =>
+      s.dark ? const Color(0xFF2E2A26) : const Color(0xFFFCFAF4);
+  static Color get surfaceGlass =>
+      s.dark ? const Color(0xCC2A2724) : const Color(0xD1FAF7F0);
 
   // 纸
-  static const paperCream = Color(0xFFF7F4EA);
-  static const paperGrid = Color(0xFFFAF8F1);
-  static const paperKraft = Color(0xFFC9A171);
-  static const paperSketch = Color(0xFFFBFAF6);
-  static const paperVintage = Color(0xFFF2E6CE);
+  static Color get paperCream => s.paperCream;
+  static Color get paperGrid => s.paperGrid;
+  static Color get paperKraft => s.paperKraft;
+  static Color get paperSketch => s.paperSketch;
+  static Color get paperVintage => s.paperVintage;
 
-  // 墨
-  static const inkBlack = Color(0xFF2A2825);
-  static const inkBlue = Color(0xFF1E3A5F);
-  static const inkGreen = Color(0xFF263B31);
+  // 墨（三色是内容，不随主题变）
+  static const Color inkBlack = Color(0xFF2A2825);
+  static const Color inkBlue = Color(0xFF1E3A5F);
+  static const Color inkGreen = Color(0xFF263B31);
 
   // 文字
-  static const text1 = Color(0xFF3E3A34);
-  static const text2 = Color(0xFF6F6A61);
-  static const text3 = Color(0xFF9C968B);
+  static Color get text1 => s.text1;
+  static Color get text2 => s.text2;
+  static Color get text3 => s.text3;
 
   // 点睛
-  static const accent = Color(0xFFC2453A);
-  static const hairline = Color(0x1A3E3A34);
+  static Color get accent => s.accent;
+  static Color get hairline => s.text1.withAlpha(26);
 
-  static const ui = 'HarmonyOS Sans SC';
-  static const serif = 'Noto Serif SC';
+  static const String ui = 'HarmonyOS Sans SC';
+  static const String serif = 'Noto Serif SC';
 }
 
 class SujianTheme {
   static ThemeData build() {
     final base = ThemeData.light(useMaterial3: true);
+    final dark = SkinStore.instance.current.dark;
     return base.copyWith(
+      brightness: dark ? Brightness.dark : Brightness.light,
       scaffoldBackgroundColor: C.ambient1,
       colorScheme: base.colorScheme.copyWith(
+        brightness: dark ? Brightness.dark : Brightness.light,
         primary: C.text1,
         secondary: C.accent,
         surface: C.surfaceCard,
+        onSurface: C.text1,
       ),
       textTheme: base.textTheme.apply(
         bodyColor: C.text1,
@@ -54,15 +65,15 @@ class SujianTheme {
     );
   }
 
-  /// 页面环境光：左上偏亮，底部偏暗
-  static const BoxDecoration ambientBg = BoxDecoration(
-    gradient: LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [C.ambient0, C.ambient1, C.ambient2],
-      stops: [0.0, 0.45, 1.0],
-    ),
-  );
+  /// 环境光：三个停靠点的极缓渐变，边界几乎看不出
+  static BoxDecoration get ambientBg => BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [C.ambient0, C.ambient1, C.ambient2],
+          stops: const [0.0, 0.45, 1.0],
+        ),
+      );
 
   static const List<BoxShadow> paperShadow = [
     BoxShadow(color: Color(0x0D3C3223), blurRadius: 2, offset: Offset(0, 1)),
